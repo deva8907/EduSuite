@@ -1,0 +1,6 @@
+@EduSuite.Identity_HostAddress = http://localhost:5062
+
+GET {{EduSuite.Identity_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
