@@ -1,6 +1,8 @@
-using System;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace EduSuite.Database.Tests;
 
@@ -15,16 +17,18 @@ public class DatabaseFixture : IDisposable
         TestTenantId = Guid.NewGuid();
         TestUserId = "test-user";
 
-        var services = new ServiceCollection();
-        
         var options = new DbContextOptionsBuilder<EduSuiteDbContext>()
-            .UseInMemoryDatabase("EduSuiteTestDb")
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
+
+        var tenantProvider = new TestTenantProvider(TestTenantId);
+        var userProvider = new TestUserProvider(TestUserId);
 
         Context = new EduSuiteDbContext(
             options,
-            new TestTenantProvider(TestTenantId),
-            new TestUserProvider(TestUserId));
+            tenantProvider,
+            userProvider);
+        Context.Database.EnsureCreated();
     }
 
     public void Dispose()
@@ -56,4 +60,4 @@ public class TestUserProvider : ICurrentUserProvider
     }
 
     public string GetCurrentUserId() => _userId;
-} 
+}

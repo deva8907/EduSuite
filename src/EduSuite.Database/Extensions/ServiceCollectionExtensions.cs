@@ -1,6 +1,7 @@
 using System;
 using EduSuite.Database.HealthChecks;
 using EduSuite.Database.Repositories;
+using EduSuite.Database.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +24,10 @@ public static class ServiceCollectionExtensions
 
         // Register repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+        // Register tenant services
+        services.AddMemoryCache();
+        services.AddScoped<ITenantContext, TenantContext>();
 
         // Register health checks
         services.AddHealthChecks()

@@ -1,8 +1,10 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this
+
 using EduSuite.Database.Entities;
 using EduSuite.Database.Repositories;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace EduSuite.Database.Tests;
@@ -105,4 +107,4 @@ public class StudentRepositoryTests : IClassFixture<DatabaseFixture>
         var allStudents = await _repository.GetAllAsync();
         Assert.DoesNotContain(allStudents, s => s.Id == added.Id);
     }
-} 
+}

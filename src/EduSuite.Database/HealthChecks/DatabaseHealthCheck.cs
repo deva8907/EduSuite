@@ -1,6 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -28,4 +28,4 @@ public class DatabaseHealthCheck : IHealthCheck
             return HealthCheckResult.Unhealthy("Database is not responding.", ex);
         }
     }
-} 
+}
