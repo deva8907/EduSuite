@@ -2,33 +2,21 @@
 // The .NET Foundation licenses this
 
 using EduSuite.ApiService.Features.Tenants.Models;
-using Microsoft.AspNetCore.Mvc.Testing;
+using EduSuite.Tests.Fixtures;
 using System.Net;
 using System.Net.Http.Json;
 
 namespace EduSuite.Tests.Features.Tenants;
 
-public class TenantsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class TenantsControllerTests : IClassFixture<TestWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly TestWebApplicationFactory<Program> _factory;
     private readonly HttpClient _client;
 
-    public TenantsControllerTests(WebApplicationFactory<Program> factory)
+    public TenantsControllerTests(TestWebApplicationFactory<Program> factory)
     {
         _factory = factory;
         _client = factory.CreateClient();
-    }
-
-    [Fact]
-    public async Task TestEndpoint_ShouldReturnOk()
-    {
-        // Act
-        var response = await _client.GetAsync("/api/tenants/test");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var content = await response.Content.ReadAsStringAsync();
-        Assert.Equal("API is working", content);
     }
 
     [Fact]
@@ -124,7 +112,7 @@ public class TenantsControllerTests : IClassFixture<WebApplicationFactory<Progra
             IsActive = true,
             Settings = new TenantSettingsRequest
             {
-                TimeZone = "UTC",
+                TimeZone = "Europe/London",
                 Locale = "en-US",
                 CurrencyCode = "USD"
             }

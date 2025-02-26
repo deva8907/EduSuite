@@ -22,16 +22,6 @@ public class TenantsController : ControllerBase
     }
 
     /// <summary>
-    /// Test endpoint to verify API is accessible.
-    /// </summary>
-    [HttpGet("test")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public ActionResult<string> Test()
-    {
-        return Ok("API is working");
-    }
-
-    /// <summary>
     /// Gets all tenants.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token.</param>

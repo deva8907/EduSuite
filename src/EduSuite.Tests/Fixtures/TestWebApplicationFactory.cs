@@ -29,11 +29,8 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
             services.AddScoped<ITenantProvider, DesignTimeTenantProvider>();
             services.AddScoped<ICurrentUserProvider, DesignTimeUserProvider>();
 
-            // Add EduSuite Database with in-memory provider
-            services.AddEduSuiteDatabase("DataSource=:memory:");
-
-            // Override with in-memory database
-            services.AddDbContext<EduSuiteDbContext>(options =>
+            // Configure DbContext to use in-memory database
+            services.AddDbContext<EduSuiteDbContext>((sp, options) =>
             {
                 options.UseInMemoryDatabase("TestDb");
             });
