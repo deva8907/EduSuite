@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using EduSuite.Database.Entities;
+using EduSuite.Database.Entities.Tenant;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace EduSuite.Database;
 
@@ -12,15 +9,21 @@ public class EduSuiteDbContext : DbContext
 {
     private readonly Guid _currentTenantId;
     private readonly string _currentUserId;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly ICurrentUserProvider _currentUserProvider;
+
+    public DbSet<Tenant> Tenants { get; set; } = null!;
 
     public EduSuiteDbContext(
         DbContextOptions<EduSuiteDbContext> options,
         ITenantProvider tenantProvider,
-        ICurrentUserProvider currentUserProvider) 
+        ICurrentUserProvider currentUserProvider)
         : base(options)
     {
         _currentTenantId = tenantProvider.GetCurrentTenantId();
         _currentUserId = currentUserProvider.GetCurrentUserId();
+        _tenantProvider = tenantProvider;
+        _currentUserProvider = currentUserProvider;
     }
 
     public DbSet<Student> Students => Set<Student>();
@@ -48,6 +51,36 @@ public class EduSuiteDbContext : DbContext
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
             }
         }
+
+        modelBuilder.Entity<Tenant>(entity =>
+        {
+            entity.ToTable("Tenants");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.Code).IsUnique();
+
+            // Configure TenantSettings as owned entity
+            entity.OwnsOne(e => e.Settings, settings =>
+            {
+                settings.Property(s => s.TimeZone).IsRequired();
+                settings.Property(s => s.Locale).IsRequired();
+                settings.Property(s => s.CurrencyCode).IsRequired();
+                settings.Property(s => s.DateFormat).IsRequired();
+                settings.Property(s => s.TimeFormat).IsRequired();
+
+                // Configure StorageSettings as owned entity
+                settings.OwnsOne(s => s.Storage, storage =>
+                {
+                    storage.Property(s => s.Provider).IsRequired();
+                    storage.Property(s => s.ContainerName).IsRequired();
+                    storage.Property(s => s.MaxStorageInMB).IsRequired();
+                    storage.Property(s => s.AllowedFileTypes).HasConversion(
+                        v => string.Join(',', v),
+                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                });
+            });
+        });
     }
 
     public override int SaveChanges()
@@ -91,4 +124,4 @@ public class EduSuiteDbContext : DbContext
             }
         }
     }
-} 
+}
