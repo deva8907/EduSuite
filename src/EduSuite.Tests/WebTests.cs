@@ -1,4 +1,6 @@
+using Aspire.Hosting.Testing;
 using System.Net;
+using Xunit;
 
 namespace EduSuite.Tests;
 

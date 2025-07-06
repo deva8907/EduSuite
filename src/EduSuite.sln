@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EduSuite.Identity", "EduSui
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EduSuite.Database", "EduSuite.Database\EduSuite.Database.csproj", "{D44D8BC1-28C3-4133-83FB-A4D4B0D963ED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EduSuite.Database.Tests", "..\tests\EduSuite.Database.Tests\EduSuite.Database.Tests.csproj", "{DE7DEE08-C47A-456C-A9F7-CC1071F84C41}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,10 +55,6 @@ Global
 		{D44D8BC1-28C3-4133-83FB-A4D4B0D963ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D44D8BC1-28C3-4133-83FB-A4D4B0D963ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D44D8BC1-28C3-4133-83FB-A4D4B0D963ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE7DEE08-C47A-456C-A9F7-CC1071F84C41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE7DEE08-C47A-456C-A9F7-CC1071F84C41}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE7DEE08-C47A-456C-A9F7-CC1071F84C41}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE7DEE08-C47A-456C-A9F7-CC1071F84C41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,7 +67,6 @@ Global
 		{36A82E7A-55CF-4B74-93A2-193B938F41DC} = {6732A012-FADE-4835-87D4-0AA72F8045C5}
 		{229E5A49-52F7-4310-9CB2-CF60295C490E} = {249A61E9-503E-4DF0-A38D-5281C199F25A}
 		{D44D8BC1-28C3-4133-83FB-A4D4B0D963ED} = {249A61E9-503E-4DF0-A38D-5281C199F25A}
-		{DE7DEE08-C47A-456C-A9F7-CC1071F84C41} = {6732A012-FADE-4835-87D4-0AA72F8045C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FC491CB-9693-45F7-A40B-88E88742F78F}

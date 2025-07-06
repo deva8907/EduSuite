@@ -5,6 +5,7 @@ using EduSuite.ApiService.Features.Tenants.Models;
 using EduSuite.Tests.Fixtures;
 using System.Net;
 using System.Net.Http.Json;
+using Xunit;
 
 namespace EduSuite.Tests.Features.Tenants;
 

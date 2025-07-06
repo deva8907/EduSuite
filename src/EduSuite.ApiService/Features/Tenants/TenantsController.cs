@@ -105,6 +105,8 @@ public class TenantsController : ControllerBase
         }
     }
 
+    
+
     /// <summary>
     /// Updates an existing tenant.
     /// </summary>
@@ -133,11 +135,11 @@ public class TenantsController : ControllerBase
     }
 
     /// <summary>
-    /// Deletes a tenant.
+    /// Deletes a tenant by ID.
     /// </summary>
-    /// <param name="id">The tenant ID.</param>
+    /// <param name="id">The tenant ID to delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>No content.</returns>
+    /// <returns>No content if successful.</returns>
     /// <response code="204">If the tenant was successfully deleted.</response>
     /// <response code="404">If the tenant is not found.</response>
     [HttpDelete("{id:guid}")]
@@ -150,9 +152,9 @@ public class TenantsController : ControllerBase
             await _tenantService.DeleteTenantAsync(id, cancellationToken);
             return NoContent();
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
-            return NotFound();
+            return NotFound(new { error = ex.Message });
         }
     }
 }
