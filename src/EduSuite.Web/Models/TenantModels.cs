@@ -30,7 +30,7 @@ public class StorageSettingsDto
 {
     public string Provider { get; set; } = "AzureBlob";
     public string ContainerName { get; set; } = string.Empty;
-    public int MaxStorageInMB { get; set; } = 1000;
+    public long MaxStorageInMB { get; set; } = 5120;
     public string[] AllowedFileTypes { get; set; } = Array.Empty<string>();
 }
 
@@ -62,7 +62,7 @@ public class UpdateTenantRequest
 public class TenantSettingsRequest
 {
     [Required]
-    [RegularExpression(@"^[A-Za-z]+/[A-Za-z_]+$", ErrorMessage = "Invalid timezone format")]
+    [RegularExpression(@"^(UTC|[A-Za-z]+/[A-Za-z_]+)$", ErrorMessage = "Invalid timezone format")]
     public string TimeZone { get; set; } = "UTC";
 
     [Required]
@@ -92,17 +92,15 @@ public class TenantSettingsRequest
 
 public class StorageSettingsRequest
 {
-    [Required]
     [RegularExpression("^(AzureBlob|LocalFileSystem|S3)$", ErrorMessage = "Invalid storage provider")]
     public string Provider { get; set; } = "AzureBlob";
 
-    [Required]
     [StringLength(63, MinimumLength = 3)]
     [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Container name can only contain lowercase letters, numbers, and hyphens")]
     public string ContainerName { get; set; } = string.Empty;
 
-    [Range(1, 10000)]
-    public int MaxStorageInMB { get; set; } = 1000;
+    [Range(1024, 10240)]
+    public long MaxStorageInMB { get; set; } = 5120;
 
     public string[] AllowedFileTypes { get; set; } = Array.Empty<string>();
 } 

@@ -128,9 +128,13 @@ public class TenantService : ITenantService
             Storage = request.Storage != null ? new StorageSettings
             {
                 Provider = request.Storage.Provider,
-                ContainerName = request.Storage.ContainerName,
+                ContainerName = !string.IsNullOrEmpty(request.Storage.ContainerName) 
+                    ? request.Storage.ContainerName 
+                    : $"tenant-{Guid.NewGuid():N}",
                 MaxStorageInMB = request.Storage.MaxStorageInMB,
-                AllowedFileTypes = request.Storage.AllowedFileTypes
+                AllowedFileTypes = request.Storage.AllowedFileTypes?.Length > 0 
+                    ? request.Storage.AllowedFileTypes 
+                    : new[] { ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png" }
             } : new StorageSettings()
         };
     }

@@ -226,7 +226,10 @@
     private void ShowCreateModal()
     {
         isEditing = false;
-        currentTenant = new CreateTenantRequest { Settings = new TenantSettingsRequest() };
+        currentTenant = new CreateTenantRequest 
+        { 
+            Settings = new TenantSettingsRequest() 
+        };
         showModal = true;
     }
 
