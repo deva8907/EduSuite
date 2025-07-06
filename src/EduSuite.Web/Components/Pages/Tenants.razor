@@ -1,0 +1,317 @@
+@page "/tenants"
+@using EduSuite.Web.Models
+@using EduSuite.Web.Services
+@inject TenantApiClient TenantApiClient
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Tenant Management</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Tenant Management</h1>
+                <button type="button" class="btn btn-primary" @onclick="ShowCreateModal">
+                    <i class="fas fa-plus"></i> Add New Tenant
+                </button>
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else if (tenants.Any())
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Max Users</th>
+                                        <th>Max Students</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var tenant in tenants)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <code>@tenant.Code</code>
+                                            </td>
+                                            <td>@tenant.Name</td>
+                                            <td>
+                                                <span class="badge @(tenant.IsActive ? "bg-success" : "bg-secondary")">
+                                                    @(tenant.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </td>
+                                            <td>@tenant.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>@(tenant.Settings?.MaxUsersAllowed ?? 0)</td>
+                                            <td>@(tenant.Settings?.MaxStudentsAllowed ?? 0)</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            @onclick="() => ShowEditModal(tenant)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                            @onclick="() => DeleteTenant(tenant)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                        <h5>No tenants found</h5>
+                        <p class="text-muted">Get started by creating your first tenant.</p>
+                        <button type="button" class="btn btn-primary" @onclick="ShowCreateModal">
+                            <i class="fas fa-plus"></i> Add New Tenant
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Modal -->
+@if (showModal)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(isEditing ? "Edit Tenant" : "Create New Tenant")</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@currentTenant" OnValidSubmit="@SaveTenant">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="code" class="form-label">Tenant Code</label>
+                                    <InputText id="code" class="form-control" @bind-Value="currentTenant.Code" 
+                                               disabled="@isEditing" />
+                                    <ValidationMessage For="@(() => currentTenant.Code)" />
+                                    <div class="form-text">Unique identifier for the tenant (cannot be changed)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Tenant Name</label>
+                                    <InputText id="name" class="form-control" @bind-Value="currentTenant.Name" />
+                                    <ValidationMessage For="@(() => currentTenant.Name)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (isEditing)
+                        {
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <InputCheckbox id="isActive" class="form-check-input" @bind-Value="updateRequest.IsActive" />
+                                    <label class="form-check-label" for="isActive">
+                                        Active
+                                    </label>
+                                </div>
+                            </div>
+                        }
+
+                        <h6 class="mb-3">Settings</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="maxUsers" class="form-label">Max Users</label>
+                                    <InputNumber id="maxUsers" class="form-control" @bind-Value="currentTenant.Settings.MaxUsersAllowed" />
+                                    <ValidationMessage For="@(() => currentTenant.Settings.MaxUsersAllowed)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="maxStudents" class="form-label">Max Students</label>
+                                    <InputNumber id="maxStudents" class="form-control" @bind-Value="currentTenant.Settings.MaxStudentsAllowed" />
+                                    <ValidationMessage For="@(() => currentTenant.Settings.MaxStudentsAllowed)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="timezone" class="form-label">Time Zone</label>
+                                    <InputText id="timezone" class="form-control" @bind-Value="currentTenant.Settings.TimeZone" />
+                                    <ValidationMessage For="@(() => currentTenant.Settings.TimeZone)" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="locale" class="form-label">Locale</label>
+                                    <InputText id="locale" class="form-control" @bind-Value="currentTenant.Settings.Locale" />
+                                    <ValidationMessage For="@(() => currentTenant.Settings.Locale)" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="currency" class="form-label">Currency</label>
+                                    <InputText id="currency" class="form-control" @bind-Value="currentTenant.Settings.CurrencyCode" />
+                                    <ValidationMessage For="@(() => currentTenant.Settings.CurrencyCode)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                @(isEditing ? "Update" : "Create") Tenant
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private List<TenantDto> tenants = new();
+    private bool isLoading = true;
+    private bool showModal = false;
+    private bool isEditing = false;
+    private bool isSaving = false;
+    private CreateTenantRequest currentTenant = new() { Settings = new() };
+    private UpdateTenantRequest updateRequest = new() { Settings = new() };
+    private Guid editingTenantId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTenants();
+    }
+
+    private async Task LoadTenants()
+    {
+        isLoading = true;
+        var result = await TenantApiClient.GetTenantsAsync();
+        tenants = result.ToList();
+        isLoading = false;
+    }
+
+    private void ShowCreateModal()
+    {
+        isEditing = false;
+        currentTenant = new CreateTenantRequest { Settings = new TenantSettingsRequest() };
+        showModal = true;
+    }
+
+    private void ShowEditModal(TenantDto tenant)
+    {
+        isEditing = true;
+        editingTenantId = tenant.Id;
+        
+        updateRequest = new UpdateTenantRequest
+        {
+            Name = tenant.Name,
+            IsActive = tenant.IsActive,
+            Settings = new TenantSettingsRequest
+            {
+                TimeZone = tenant.Settings?.TimeZone ?? "UTC",
+                Locale = tenant.Settings?.Locale ?? "en-US",
+                CurrencyCode = tenant.Settings?.CurrencyCode ?? "INR",
+                DateFormat = tenant.Settings?.DateFormat ?? "dd/MM/yyyy",
+                TimeFormat = tenant.Settings?.TimeFormat ?? "HH:mm:ss",
+                UsesDaylightSaving = tenant.Settings?.UsesDaylightSaving ?? false,
+                MaxUsersAllowed = tenant.Settings?.MaxUsersAllowed ?? 100,
+                MaxStudentsAllowed = tenant.Settings?.MaxStudentsAllowed ?? 1000
+            }
+        };
+
+        // For form binding, we need to use the create request model
+        currentTenant = new CreateTenantRequest
+        {
+            Code = tenant.Code,
+            Name = tenant.Name,
+            Settings = updateRequest.Settings
+        };
+        
+        showModal = true;
+    }
+
+    private void HideModal()
+    {
+        showModal = false;
+        isSaving = false;
+    }
+
+    private async Task SaveTenant()
+    {
+        isSaving = true;
+        
+        try
+        {
+            if (isEditing)
+            {
+                updateRequest.Name = currentTenant.Name;
+                updateRequest.Settings = currentTenant.Settings;
+                
+                var result = await TenantApiClient.UpdateTenantAsync(editingTenantId, updateRequest);
+                if (result != null)
+                {
+                    await LoadTenants();
+                    HideModal();
+                }
+            }
+            else
+            {
+                var result = await TenantApiClient.CreateTenantAsync(currentTenant);
+                if (result != null)
+                {
+                    await LoadTenants();
+                    HideModal();
+                }
+            }
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task DeleteTenant(TenantDto tenant)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete tenant '{tenant.Name}'?"))
+        {
+            var success = await TenantApiClient.DeleteTenantAsync(tenant.Id);
+            if (success)
+            {
+                await LoadTenants();
+            }
+        }
+    }
+} 
