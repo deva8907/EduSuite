@@ -20,7 +20,12 @@ builder.Services.AddScoped<ITenantProvider, DesignTimeTenantProvider>();
 builder.Services.AddScoped<ICurrentUserProvider, DesignTimeUserProvider>();
 
 // Add EduSuite Database
-builder.Services.AddEduSuiteDatabase(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=(localdb)\\mssqllocaldb;Database=EduSuite;Trusted_Connection=True;MultipleActiveResultSets=true");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("DefaultConnection string is not configured. Please check your appsettings.json file.");
+}
+builder.Services.AddEduSuiteDatabase(connectionString);
 
 // Add EduSuite services
 builder.Services.AddScoped<ITenantService, TenantService>();
